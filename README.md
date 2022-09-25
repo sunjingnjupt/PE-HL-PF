@@ -1,6 +1,6 @@
 # PE-CHL
  A Fast and Precise Contour-Based Heuristic Vehicle Pose Estimation with LIDAR
-### The exzample vedio for the vehicle pose estimation can be found on the [Youtube](https://www.youtube.com/watch?v=FMX1Pya6qwg).
+### The example vedio for the vehicle pose estimation can be found on the [Youtube](https://www.youtube.com/watch?v=FMX1Pya6qwg).
 This reposetary contains the implement detais abount the paper" A Fast and Precise Contour-Based Heuristic Vehicle Pose Estimation with LIDAR".
 ## Introduction
 

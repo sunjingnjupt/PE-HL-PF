@@ -10,11 +10,11 @@ This reposetary contains the implement detais abount the paper" Dynamic Vehicula
 <div align=center><img width="99%" height="100%" alt="Geometric classifier" src="https://github.com/sunjingnjupt/PE-CHL-v2/blob/main/image/classifier.jpg"/></div>
 
 ### platform and thirdparty
-*platform*: ubuntu14.04 or higher ubuntu version., CMakeList 2.8.3 or higher.
+*platform*: ubuntu14.04 or higher ubuntu version., CMakeList 2.8.3 or higher.  
 *third party*:  
-[Qt5.6: ](https://download.qt.io/new_archive/qt/5.6/5.6.3/)  you should change [CMakeList.txt](https://github.com/sunjingnjupt/PE-HL-PF/blob/main/CMakeLists.txt) content Qt5_DIR to Qt install dir.
-[OPENCV3： ](https://pyimagesearch.com/2016/10/24/ubuntu-16-04-how-to-install-opencv/), you should change [CMakeList.txt](https://github.com/sunjingnjupt/PE-HL-PF/blob/main/CMakeLists.txt) content OpenCV_DIR to Opencv install dir.
-[QGLVIEWER](https://github.com/GillesDebunne/libQGLViewer) is a powerful and high-performance point cloud image visualization
+[Qt5.6: ](https://download.qt.io/new_archive/qt/5.6/5.6.3/)  you should change [CMakeList.txt](https://github.com/sunjingnjupt/PE-HL-PF/blob/main/CMakeLists.txt) content Qt5_DIR to Qt install dir.  
+[OPENCV3： ](https://pyimagesearch.com/2016/10/24/ubuntu-16-04-how-to-install-opencv/) you should change [CMakeList.txt](https://github.com/sunjingnjupt/PE-HL-PF/blob/main/CMakeLists.txt) content OpenCV_DIR to Opencv install dir.  
+[QGLVIEWER](https://github.com/GillesDebunne/libQGLViewer) is a powerful and high-performance point cloud image visualization.  
 ```
 sudo apt-get install libqglviewer-dev libboost-all-dev libeigen3-dev freeglut3-dev libgl1-mesa-dev libgtest-dev2
 ```

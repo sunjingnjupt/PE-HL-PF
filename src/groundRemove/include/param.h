@@ -77,15 +77,7 @@ public:
     // 参数
     // 文件读取参数
     int sequences = 20;
-    // int sequences = 21;
-    std::string kitti_img_dir = "/home/yyg/data/kitti/data/training/image_2";
-    // std::string kitti_velo_dir = 
-        // "/home/yyg/data/kittl/data/training/";
-    //std::string kitti_velo_dir = "/home/yyg/code/lidarCode/lidarVisualization/data_odometry_velodyne/dataset/sequences/20";
-    std::string kitti_velo_dir = "/home/yyg/data/kitti/data/training";
-    std::string kitti_base_img_dir = "/home/yyg/code/lidarCodeVis/lidarVisualization/data_odometry_color/dataset/sequences/";
-    // std::string kitti_base_velo_dir = "/home/yyg/code/lidarCodeVis/lidarVisualization/data_odometry_velodyne/dataset/sequences/";
-    std::string kitti_base_velo_dir = "/media/yyg/64466F94466F6630/data/data_tracking_velodyne/training/velodyne/";
+    std::string kitti_velo_dir = "//home/yyg/lidarVisualization/data_odometry_velodyne/dataset/sequences/";
 
   std::array<std::array<int, 3>, 200> RANDOM_COLORS = 
   {{

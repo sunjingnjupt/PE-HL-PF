@@ -240,8 +240,8 @@ void MainWindow::onOpenFolderToRead()
 //    std::string kitti_velo_dir = "/media/yyg/64466F94466F6630/data/data_tracking_velodyne/training/velodyne/1";
     std::string kitti_velo_dir = folder_name.toStdString() + "/velodyne";
     std::string kitti_img_dir = folder_name.toStdString() + "/image_2";
-    std::string kitti_label_dir = folder_name.toStdString() + "/label_2";
-    std::string kitti_perdict_dir = folder_name.toStdString() + "/predict";
+//    std::string kitti_label_dir = folder_name.toStdString() + "/label_2";
+//    std::string kitti_perdict_dir = folder_name.toStdString() + "/predict";
 
     // QString folder_name = QString::fromStdString(_params.kitti_velo_dir);
     if (folder_name.size() == 0) return; // no dir choosed
@@ -258,15 +258,15 @@ void MainWindow::onOpenFolderToRead()
     // utils::ReadKittiFileByDir(folder_name.toStdString(), _file_names_velo);
     utils::ReadKittiFileByDir(kitti_velo_dir, _file_names_velo);
     utils::ReadKittiFileByDir(kitti_img_dir, _file_names_img);
-    utils::ReadKittiFileByDir(kitti_label_dir, _file_names_label);
-    utils::ReadKittiFileByDir(kitti_perdict_dir, _file_names_perdict);
+//    utils::ReadKittiFileByDir(kitti_label_dir, _file_names_label);
+//    utils::ReadKittiFileByDir(kitti_perdict_dir, _file_names_perdict);
     // fprintf(stderr, "_file_names_velo.size %d, _file_names_imgs %d\n",
     //         _file_names_velo.size(), _file_names_img.size());
     // utils::ReadKittiFileByDir(_params.kitti_img_dir, _file_names_img);
     std::sort(_file_names_velo.begin(), _file_names_velo.end()); // 对文件夹排序
     std::sort(_file_names_img.begin(), _file_names_img.end());
-    std::sort(_file_names_label.begin(), _file_names_label.end());
-    std::sort(_file_names_perdict.begin(), _file_names_perdict.end());
+//    std::sort(_file_names_label.begin(), _file_names_label.end());
+//    std::sort(_file_names_perdict.begin(), _file_names_perdict.end());
     std::cout << "the label data is: " << std::endl;
 //    for (const auto& elem : _file_names_label) {
 //        std::cout << "elem: " << elem << std::endl;
@@ -334,15 +334,15 @@ void MainWindow::onSliderMovedTo(int cloud_number)
     const auto &file_name = _file_names_velo[cloud_number];
     _cloud = utils::ReadKittiBinCloudByPath(file_name);
 
-    const auto& lable_file_name = _file_names_label[cloud_number];
-    const auto& perdict_file_name = _file_names_perdict[cloud_number];
-    std::vector<Cloud::Ptr> labelBoxs = utils::ReadKittiLabelBoxByPath(lable_file_name,  MATRIX_T_VELO_2_CAM, MATRIX_R_RECT_0);
-    std::vector<Cloud::Ptr> perdictBoxs = utils::ReadKittiLabelBoxByPath(perdict_file_name, MATRIX_T_VELO_2_CAM, MATRIX_R_RECT_0, 16);
+//    const auto& lable_file_name = _file_names_label[cloud_number];
+//    const auto& perdict_file_name = _file_names_perdict[cloud_number];
+//    std::vector<Cloud::Ptr> labelBoxs = utils::ReadKittiLabelBoxByPath(lable_file_name,  MATRIX_T_VELO_2_CAM, MATRIX_R_RECT_0);
+//    std::vector<Cloud::Ptr> perdictBoxs = utils::ReadKittiLabelBoxByPath(perdict_file_name, MATRIX_T_VELO_2_CAM, MATRIX_R_RECT_0, 16);
     // fprintf(stderr, "num Point %d\n", _cloud->size());
     assert(_cloud->size() != 0);
     fprintf(stderr, "\n\n------------------------------>\n");
     infoTextEdit->append("read bin file from: " + QString::fromStdString(file_name));
-    infoTextEdit->append("read label file from: " + QString::fromStdString(lable_file_name));
+//    infoTextEdit->append("read label file from: " + QString::fromStdString(lable_file_name));
     infoTextEdit->append("current frame is: " + QString::number(cloud_number));
     fprintf(stderr, "current frame is %d\n", cloud_number);
     moveCursorToEnd();   
@@ -371,14 +371,58 @@ void MainWindow::onSliderMovedTo(int cloud_number)
     // 添加各种显示前， 清楚 _drawables--> vector
     _viewer->Clear();
 
-    // 检测可选择的框
-    Eigen::Vector3f detectBBoxColor(67.0f/255, 141.0f/255, 43.0f/255);
-    _viewer->drawSelectableBBox = DrawSelectAbleBBox(labelBoxs, true);
-//    _viewer->AddDrawable(DrawSelectAbleBBox::FromCloud(labelBoxs, true, detectBBoxColor), "DrawSelectAbleBBox");
-    Eigen::Vector3f perdictBBoxColor(1.0f, 1.0f, 1.0f);
-//    _viewer->AddDrawable(DrawSelectAbleBBox::FromCloud(perdictBoxs, true, perdictBBoxColor), "DrawSelectAbleBBox");
-    // std::vector<Cloud::Ptr> bboxPts;  // minAre + pca
+    std::vector<Rect2D> rect2DVec;
+    std::vector<Cloud::Ptr> clusters;
+    std::vector<Cloud::Ptr> bboxPts;  // minAre + pca
     // std::vector<Cloud::Ptr> bboxPts2; // L_shape
+    Cloud::Ptr markPoints(new Cloud); // 标记的点
+
+    if (ui->clusterCB->isChecked())
+    {
+        std::chrono::high_resolution_clock::time_point start = std::chrono::high_resolution_clock::now();
+        cluster.componentClustering();
+        std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> fp_ms = end - start;
+        std::cout << "Cluster took about " << fp_ms.count() << " ms" << std::endl;
+        // cluster.getClusterImg(visClusterImg);
+        cluster.makeClusteredCloud(*obstacle_cloud, clusters);
+
+        // 找出最佳的 最表面的 clusters
+        int bboxDebugId = -1;
+        if (ui->bboxCB->isChecked())
+        {
+            if (_viewer->bboxSelection.size() > 0)
+            {
+                bboxDebugId = bboxToCluster[_viewer->bboxSelection[0]];
+            }
+        }
+        Cloud::Ptr lShapePoints (new Cloud);
+        rect2DVec = cluster.getRectVec();
+        if (ui->voxelCB->isChecked())
+        {
+            _viewer->AddDrawable(DrawableRect::FromRectVec(rect2DVec), "DrawAbleRect");
+        }
+
+        // bbox 拟合 L-shape fitting
+        if (ui->bboxCB->isChecked())
+        {
+            std::chrono::high_resolution_clock::time_point start_bbox = std::chrono::high_resolution_clock::now();
+            getBBox(clusters, bboxPts, markPoints, lShapePoints ,bboxToCluster, lShpaeHorizonResolution ,bboxDebugId);
+            Eigen::Vector3f color;
+            float pointSize = 3.2f;
+            color << 1.0, 1.0, 1.0;
+            _viewer->AddDrawable(DrawableCloud::FromCloud(lShapePoints, color, pointSize), "lShapePoints");
+            std::chrono::high_resolution_clock::time_point end_bbox = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double, std::milli> fp_ms_bbox = end_bbox - start_bbox;
+            std::cout << "boundingbox took about " << fp_ms_bbox.count() << " ms" << std::endl;
+            _viewer->drawSelectableBBox = DrawSelectAbleBBox(bboxPts, true);
+            Eigen::Vector3f detectBBoxColor(67.0f/255, 141.0f/255, 43.0f/255);
+            _viewer->AddDrawable(DrawSelectAbleBBox::FromCloud(bboxPts, false, detectBBoxColor), "DrawSelectAbleBBox");
+            _viewer->AddDrawable(DrawableCloud::FromCloud(markPoints, Eigen::Vector3f(0.0f, 1.0f, 0.2f),
+                                                          GLfloat(6)),"L_shape markPoints");
+
+        }
+    }
 
     cv::Mat visImage, depthImage;
     depth_clustering depthCluster(*obstacle_cloud, depthImagefilter, angle_threshold);

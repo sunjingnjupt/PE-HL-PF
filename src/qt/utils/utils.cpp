@@ -41,8 +41,8 @@ namespace utils
                 file.read(reinterpret_cast<char*>(&pt.z()), sizeof(float));
                 file.read(reinterpret_cast<char*>(&intensity), sizeof(float));
                 // if (std::atan2(pt.y(), pt.x()) < M_PI / 4 && std::atan2(pt.y(), pt.x()) > -M_PI / 4)  // delete some points
-                if (pt.x() > 0 && pt.x() < 70.2f && pt.y() > -40.0f && pt.y() < 40.0f && pt.z() > -3.0f && pt.z() < 1.0f)
-                    cloud->emplace_back(pt);
+                // if (pt.x() > 0 && pt.x() < 70.2f && pt.y() > -40.0f && pt.y() < 40.0f && pt.z() > -3.0f && pt.z() < 1.0f)
+                cloud->emplace_back(pt);
             }
             file.close();
         }
